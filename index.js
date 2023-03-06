@@ -4,6 +4,7 @@ const {REST} = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const { Player } = require("discord-player")
+const { VoiceConnectionStatus } = require('@discordjs/voice');
 
 const fs = require('fs');
 const path = require('path');
@@ -76,6 +77,13 @@ client.on("interactionCreate", async interaction => {
         console.error(error);
         await interaction.reply({content: "NIJIKA.EXE IS NOT WORKING \nhttps://tenor.com/view/nijika-anime-anime-girl-gag-humor-gif-27294659"});
     }
+});
+client.player.on('connectionCreate', (queue) => {
+    queue.connection.voiceConnection.on('stateChange', (oldState, newState) => {
+        if (oldState.status === VoiceConnectionStatus.Ready && newState.status === VoiceConnectionStatus.Connecting) {
+            queue.connection.voiceConnection.configureNetworking();
+        }
+    })
 });
 
 client.login(process.env.TOKEN);
